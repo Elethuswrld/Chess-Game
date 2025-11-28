@@ -5,11 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up - JS Chess</title>
     <link rel="stylesheet" href="./style.css">
-    <style>
-        .auth-form { width: 300px; margin: 50px auto; padding: 20px; border: 1px solid #ccc; border-radius: 5px; }
-        .auth-form input { width: 100%; padding: 8px; margin-bottom: 10px; }
-        .auth-form button { width: 100%; padding: 10px; background-color: #5cb85c; color: white; border: none; cursor: pointer; }
-    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -24,12 +19,28 @@
         </div>
     </nav>
 
-    <div class="auth-form">
-        <h2>Sign Up</h2>
-        <input type="text" placeholder="Username" id="username">
-        <input type="email" placeholder="Email" id="email">
-        <input type="password" placeholder="Password" id="password">
-        <button>Create Account</button>
+    <div class="auth-container">
+        <div class="auth-form">
+            <h2>Create Account</h2>
+            <input type="text" placeholder="Username" id="username" required>
+            <input type="email" placeholder="Email" id="email" required>
+            <input type="password" placeholder="Password" id="password" required>
+            <button>Sign Up</button>
+            <div class="form-footer">Already have an account? <a href="login.html">Login</a></div>
+        </div>
     </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+          const navLinks = document.querySelectorAll('.nav-links a');
+  
+          navLinks.forEach(link => {
+              if (link.getAttribute('href') === currentPage) {
+                  link.classList.add('active');
+              }
+          });
+      });
+    </script>
 </body>
 </html>

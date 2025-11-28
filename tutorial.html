@@ -5,37 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>How to Play - JS Chess</title>
     <link rel="stylesheet" href="./style.css">
-    <style>
-        .tutorial-container {
-            width: 80%;
-            max-width: 900px;
-            margin: 30px auto;
-            font-family: sans-serif;
-        }
-        .piece-tutorial {
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .piece-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
-        }
-        .piece-char {
-            font-size: 50px;
-            line-height: 1;
-        }
-        .piece-header h3 {
-            margin: 0;
-            font-size: 1.8rem;
-        }
-    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -101,6 +70,18 @@
             <p>The king is the most important piece, but also one of the weakest. It can move one square in any direction (horizontally, vertically, or diagonally). The goal of the game is to checkmate the opponent's king!</p>
         </div>
     </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+          const navLinks = document.querySelectorAll('.nav-links a');
+  
+          navLinks.forEach(link => {
+              if (link.getAttribute('href') === currentPage) {
+                  link.classList.add('active');
+              }
+          });
+      });
+    </script>
 </body>
 </html>
-

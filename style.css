@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
 :root, body.theme-default {
   --color-light-square: #ffffff;
   --color-dark-square: rgba(128, 128, 128, 0.8);
@@ -25,17 +27,22 @@ body.theme-forest {
 
 html, body {
   width: 100%;
-  height: 100%;
+  min-height: 100%;
   padding: 0;
   margin: 0;
-  font-family: sans-serif;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #2b2b2b, #1a1a1a);
+  color: #f0f0f0;
 }
 
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #333;
+  background-color: rgba(20, 20, 20, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding: 0.5rem 1rem;
   color: white;
 }
@@ -46,12 +53,30 @@ html, body {
   font-weight: bold;
 }
 .nav-links a {
-  color: white;
+  color: #ccc;
   text-decoration: none;
   margin-left: 1rem;
+  transition: color 0.3s ease;
+  position: relative;
+  padding: 5px 0;
 }
 .nav-links a:hover {
   text-decoration: underline;
+}
+.nav-links a.active {
+  color: #4a90e2;
+  font-weight: bold;
+  text-decoration: none;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: #4a90e2;
+  transition: width 0.3s ease;
 }
 
 div * {
@@ -69,7 +94,8 @@ div * {
   border-style: inset;
   text-align: center;
   padding: 5px 0 0 0;
-  background: #fff;
+  background: #252525;
+  color: #f0f0f0;
   transition: .85s linear;
 }
 
@@ -83,15 +109,22 @@ div * {
   margin-left: 15px;
 }
 
-#new-game-btn, .theme-selector {
+#new-game-btn, #theme-select {
   display: inline-block;
   vertical-align: middle;
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
   border-radius: 5px;
-  border: 1px solid #333;
-  background-color: #f0f0f0;
+  border: 1px solid #4a90e2;
+  background: transparent;
+  color: #f0f0f0;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+#new-game-btn:hover, #theme-select:hover {
+  background-color: #4a90e2;
+  color: #fff;
 }
 
 .turnhighlight {
@@ -129,11 +162,9 @@ div * {
 }
 
 .gamecell:hover {
-  color: #fff;
-  background: rgba(37, 88, 228, 0.712);
   z-index: 2;
-  transform: translate(10px, -10px);
-  animation: neonBlueText 1.5s ease-in-out infinite alternate;
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(74, 144, 226, 0.5);
 }
 
 .grey {
@@ -141,8 +172,7 @@ div * {
 }
 
 .green {
-  /*background: green !important;*/
-  background: var(--color-highlight-move) !important;
+  background: radial-gradient(circle, rgba(74, 144, 226, 0.7) 20%, transparent 70%) !important;
 }
 
 .last-move-from {
@@ -347,3 +377,68 @@ div * {
   animation-duration: 100ms;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite; }
+
+/* --- Auth & Dashboard Form/Card Styles --- */
+.auth-container, .dashboard-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 50px 20px;
+}
+.auth-form, .dashboard-content {
+  width: 100%;
+  max-width: 420px;
+  padding: 40px;
+  background-color: #2a2a2e;
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.auth-form h2, .dashboard-content h2 {
+  margin-bottom: 25px;
+  color: #fff;
+  font-weight: 600;
+}
+.auth-form input {
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  border: 1px solid #444;
+  background-color: #333;
+  color: #f0f0f0;
+  border-radius: 5px;
+  box-sizing: border-box;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.auth-form input:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.3);
+  outline: none;
+}
+.auth-form button {
+  width: 100%;
+  padding: 12px;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: background-color 0.3s;
+}
+.auth-form button:hover { background-color: #357abd; }
+.form-footer { margin-top: 20px; font-size: 14px; color: #aaa; }
+.form-footer a { color: #4a90e2; text-decoration: none; }
+.form-footer a:hover { text-decoration: underline; }
+
+/* --- Tutorial Page Styles --- */
+.tutorial-container { max-width: 800px; margin: 40px auto; padding: 20px; }
+.tutorial-container h1 { text-align: center; margin-bottom: 40px; font-size: 2.5rem; font-weight: 700; }
+.piece-tutorial { background-color: #2a2a2e; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.2); border-radius: 8px; padding: 25px; margin-bottom: 25px; transition: transform 0.2s, box-shadow 0.2s; }
+.piece-tutorial:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
+.piece-header { display: flex; align-items: center; gap: 20px; margin-bottom: 15px; }
+.piece-char { font-size: 50px; line-height: 1; color: #4a90e2; }
+.piece-header h3 { margin: 0; font-size: 1.8rem; color: #fff; }
+.piece-tutorial p { line-height: 1.7; color: #ccc; }
