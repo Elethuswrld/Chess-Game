@@ -1,5 +1,29 @@
-html,
-body {
+:root, body.theme-default {
+  --color-light-square: #ffffff;
+  --color-dark-square: rgba(128, 128, 128, 0.8);
+  --color-border: #000;
+  --color-highlight-move: rgba(65, 161, 73, 0.8);
+  --color-last-move: rgba(204, 219, 83, 0.7);
+  --color-check: rgba(255, 0, 0, 0.5);
+}
+
+body.theme-classic {
+  --color-light-square: #f0d9b5;
+  --color-dark-square: #b58863;
+  --color-border: #333;
+}
+
+body.theme-ocean {
+  --color-light-square: #cce5ff;
+  --color-dark-square: #66a3ff;
+}
+
+body.theme-forest {
+  --color-light-square: #dcedc8;
+  --color-dark-square: #7cb342;
+}
+
+html, body {
   width: 100%;
   height: 100%;
   padding: 0;
@@ -14,12 +38,9 @@ div * {
 }
 
 #turn {
-  max-width: 451px;
-  max-height: 30px;
-  width: 100%;
-  height: 100%;
-  position: relative;
-  float: right;
+  width: 498px;
+  margin: 10px auto 0;
+  height: 30px;
   border-radius: 5px;
   border: 1px solid rgb(0, 0, 0);
   border-style: inset;
@@ -34,10 +55,14 @@ div * {
   margin: 10px auto;
 }
 
-#new-game-btn, #flip-board-btn {
-  display: block;
+.theme-selector {
   display: inline-block;
-  margin: 0 5px;
+  margin-left: 15px;
+}
+
+#new-game-btn, .theme-selector {
+  display: inline-block;
+  vertical-align: middle;
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
@@ -52,32 +77,26 @@ div * {
 }
 
 #game {
-  max-width: 504px;
-  max-height: 504px;
-  width: 100%;
-  height: 100%;
+  display: grid;
+  grid-template-columns: 50px repeat(8, 56px);
+  grid-template-rows: repeat(8, 56px) 50px;
+  width: 498px; /* (8 * 56px) + 50px */
   position: relative;
-  margin: 20px auto;
+  margin: 20px auto 0;
 }
 
 .cellprefix {
   width: 100%;
   height: 100%;
-  max-width: 50px;
-  max-height: 50px;
-  float: left;
-  margin: 3px;
-  padding: 15px 0 0 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .gamecell {
-  border: 1px solid #000;
+  background-color: var(--color-light-square);
   width: 100%;
   height: 100%;
-  max-width: 50px;
-  max-height: 50px;
-  float: left;
-  margin: 3px;
   transition: all 0.5s ease-in-out;
   border-radius: 5px;
   font-size: 30pt;
@@ -95,24 +114,24 @@ div * {
 }
 
 .grey {
-  background: rgba(128, 128, 128, 0.801);
+  background-color: var(--color-dark-square);
 }
 
 .green {
   /*background: green !important;*/
-  background: rgb(65, 161, 73) !important;
+  background: var(--color-highlight-move) !important;
 }
 
 .last-move-from {
-  background-color: rgba(204, 219, 83, 0.7) !important; /* A yellowish color */
+  background-color: var(--color-last-move) !important; /* A yellowish color */
 }
 
 .last-move-to {
-  background-color: rgba(172, 199, 66, 0.8) !important; /* A slightly darker yellowish-green */
+  background-color: var(--color-last-move) !important; /* A slightly darker yellowish-green */
 }
 
 .in-check {
-  background-color: rgba(255, 0, 0, 0.5) !important; /* A light red color */
+  background-color: var(--color-check) !important; /* A light red color */
 }
 
 .neonblue_txt {

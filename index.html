@@ -37,9 +37,18 @@
 </div>
 <div class="controls">
   <button id="new-game-btn">New Game</button>
-  <button id="flip-board-btn">Flip Board</button>
+  <div class="theme-selector">
+    <label for="theme-select">Theme:</label>
+    <select id="theme-select">
+      <option value="default">Default</option>
+      <option value="classic">Classic</option>
+      <option value="ocean">Ocean</option>
+      <option value="forest">Forest</option>
+    </select>
+  </div>
 </div>
 <div id="game"></div>
+<div id="turn">It's Whites Turn!</div>
 <div id="captured-by-white" class="captured-pieces">
   <!-- White's captured pieces will go here -->
 </div>

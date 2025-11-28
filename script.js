@@ -7,7 +7,7 @@ let main = {
     highlighted: [],
     inCheck: '', // 'w' or 'b' if a king is in check
     gameOver: false,
-    boardFlipped: false,
+    enPassantTarget: null,
     lastMove: {
       from: '',
       to: ''
@@ -247,6 +247,9 @@ let main = {
     resetGame: function() {
       // Restore variables from the initial state
       main.variables = JSON.parse(JSON.stringify(main.initialState));
+      
+      // Also reset enPassantTarget from initial state
+      main.variables.enPassantTarget = null;
 
       // Hide game over modal
       $('#game-over-modal').hide();
@@ -272,54 +275,23 @@ let main = {
 
     drawboard: function() {
       const board = $('#game');
-      const isFlipped = main.variables.boardFlipped;
       const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-      
-      const ranks = isFlipped ? [1, 2, 3, 4, 5, 6, 7, 8] : [8, 7, 6, 5, 4, 3, 2, 1];
-      const fileIndices = isFlipped ? [8, 7, 6, 5, 4, 3, 2, 1] : [1, 2, 3, 4, 5, 6, 7, 8];
-      const fileLabels = isFlipped ? files.slice().reverse() : files;
   
       board.empty(); 
   
-      for (const rank of ranks) {
+      for (let rank = 8; rank >= 1; rank--) {
           board.append(`<div class='cellprefix'>${rank}</div>`);
   
-          for (const file of fileIndices) {
+          for (let file = 1; file <= 8; file++) {
               const isGrey = (rank + file) % 2 === 1;
               const cellId = `${file}_${rank}`;
               board.append(`<div class='gamecell ${isGrey ? 'grey' : ''}' id='${cellId}'></div>`);
           }
-          board.append('<br>');
       }
   
       board.append(`<div class='cellprefix'></div>`); // Empty corner
-      for (const label of fileLabels) {
-          board.append(`<div class='cellprefix'>${label}</div>`);
-      }
-      board.append('<br>');
-  
-      board.append(`<div id='turn'>It's Whites Turn!</div>`);
-    },
-
-    flipBoard: function() {
-      main.variables.boardFlipped = !main.variables.boardFlipped;
-
-      // Redraw the board and pieces
-      main.methods.drawboard();
-      main.methods.gamesetup();
-
-      // Re-apply current turn text
-      const turnText = main.variables.turn === 'w' ? "It's Whites Turn" : "It's Blacks Turn";
-      $('#turn').html(turnText);
-
-      // Re-apply highlights
-      if (main.variables.lastMove.from) {
-        $('#' + main.variables.lastMove.from).addClass('last-move-from');
-        $('#' + main.variables.lastMove.to).addClass('last-move-to');
-      }
-      if (main.variables.inCheck) {
-        const kingPos = main.methods.findKing(main.variables.inCheck);
-        $('#' + kingPos).addClass('in-check');
+      for (const file of files) {
+          board.append(`<div class='cellprefix'>${file}</div>`);
       }
     },
 
@@ -428,6 +400,10 @@ let main = {
             if (targetPiece && targetPiece.startsWith(opponentColor)) {
               moves.push(captureId);
             }
+            // En Passant capture
+            if (main.variables.enPassantTarget === captureId) {
+              moves.push(captureId);
+            }
           }
         });
       }
@@ -497,6 +473,21 @@ let main = {
     },
 
     capture: function (target) {
+      // Handle En Passant capture
+      if (main.variables.enPassantTarget === target.id) {
+        const color = main.variables.turn;
+        const dir = color === 'w' ? -1 : 1;
+        const targetPawnPos = `${target.id.split('_')[0]}_${parseInt(target.id.split('_')[1]) + dir}`;
+        const capturedPawnName = $('#' + targetPawnPos).attr('chess');
+
+        // Manually set the target piece for capture logic
+        target.name = capturedPawnName;
+
+        // Remove the captured pawn from the board
+        $('#' + targetPawnPos).html('');
+        $('#' + targetPawnPos).attr('chess', 'null');
+      }
+
       const sound = $('#capture-sound')[0];
       sound.currentTime = 0;
       sound.play();
@@ -554,6 +545,16 @@ let main = {
       // old cell
       $('#' + main.variables.selectedpiece).html('');
       $('#' + main.variables.selectedpiece).attr('chess','null');
+
+      // Set en passant target if a pawn moves two squares
+      const piece = main.variables.pieces[selectedpiece];
+      if (piece.type.includes('pawn') && Math.abs(target.id.split('_')[1] - piece.position.split('_')[1]) === 2) {
+        const dir = piece.type.startsWith('w') ? -1 : 1;
+        main.variables.enPassantTarget = `${target.id.split('_')[0]}_${parseInt(target.id.split('_')[1]) + dir}`;
+      } else {
+        main.variables.enPassantTarget = null;
+      }
+
       main.variables.pieces[selectedpiece].position = target.id;
       main.variables.pieces[selectedpiece].moved = true;
 
@@ -760,6 +761,10 @@ let main = {
 
     endturn: function(){
 
+      // Clear en passant vulnerability at the end of the turn
+      // Note: This is cleared by the next move logic, but as a safeguard:
+      // main.variables.enPassantTarget = null;
+
       if (main.variables.turn == 'w') {
         main.variables.turn = 'b';
         
@@ -814,15 +819,18 @@ $(document).ready(function() {
   main.methods.drawboard();
   main.methods.gamesetup();
 
+  // Theme switcher
+  $('#theme-select').on('change', function() {
+    const theme = $(this).val();
+    $('body').removeClass('theme-default theme-classic theme-ocean theme-forest').addClass('theme-' + theme);
+  });
+
   $('.gamecell').click(function(e) {
 
     if (main.variables.gameOver) return; // Don't allow moves if game is over
 
     // New Game button handler
     $('#new-game-btn').click(main.methods.resetGame);
-
-    // Flip Board button handler
-    $('#flip-board-btn').click(main.methods.flipBoard);
 
     var selectedpiece = {
       name: '',
