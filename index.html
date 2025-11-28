@@ -35,7 +35,10 @@
 <div id="captured-by-black" class="captured-pieces">
   <!-- Black's captured pieces will go here -->
 </div>
-<button id="new-game-btn">New Game</button>
+<div class="controls">
+  <button id="new-game-btn">New Game</button>
+  <button id="flip-board-btn">Flip Board</button>
+</div>
 <div id="game"></div>
 <div id="captured-by-white" class="captured-pieces">
   <!-- White's captured pieces will go here -->
@@ -59,6 +62,10 @@
 <!-- partial -->
   <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
   <script  src="./script.js"></script>
+
+  <!-- Sound Effects -->
+  <audio id="move-sound" src="https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/move-self.mp3" preload="auto"></audio>
+  <audio id="capture-sound" src="https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/capture.mp3" preload="auto"></audio>
 
 </body>
 </html>
