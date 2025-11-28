@@ -1,9 +1,16 @@
 let main = {
 
+  initialState: {},
   variables: {
     turn: 'w',
     selectedpiece: '',
     highlighted: [],
+    inCheck: '', // 'w' or 'b' if a king is in check
+    gameOver: false,
+    lastMove: {
+      from: '',
+      to: ''
+    },
     pieces: {
       w_king: {
         position: '5_1',
@@ -236,12 +243,94 @@ let main = {
   },
 
   methods: {
+    resetGame: function() {
+      // Restore variables from the initial state
+      main.variables = JSON.parse(JSON.stringify(main.initialState));
+
+      // Hide game over modal
+      $('#game-over-modal').hide();
+
+      // Clear any active highlights
+      $('.gamecell').removeClass("green shake-little neongreen_txt last-move-from last-move-to in-check");
+
+      // Clear the board UI
+      $('.gamecell').html('').attr('chess', 'null');
+
+      // Clear captured pieces display
+      $('#captured-by-white').empty();
+      $('#captured-by-black').empty();
+
+      // Redraw pieces in their starting positions
+      main.methods.gamesetup();
+
+      // Reset turn indicator
+      $('#turn').html("It's Whites Turn!");
+
+      console.log("Game has been reset.");
+    },
+
+    drawboard: function() {
+      const board = $('#game');
+      const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+  
+      board.empty(); 
+  
+      for (let rank = 8; rank >= 1; rank--) {
+          board.append(`<div class='cellprefix'>${rank}</div>`);
+  
+          for (let file = 1; file <= 8; file++) {
+              const isGrey = (rank + file) % 2 === 1;
+              const cellId = `${file}_${rank}`;
+              board.append(`<div class='gamecell ${isGrey ? 'grey' : ''}' id='${cellId}'></div>`);
+          }
+          board.append('<br>');
+      }
+  
+      board.append(`<div class='cellprefix'></div>`); // Empty corner
+      for (const file of files) {
+          board.append(`<div class='cellprefix'>${file}</div>`);
+      }
+      board.append('<br>');
+  
+      board.append(`<div id='turn'>It's Whites Turn!</div>`);
+    },
+
     gamesetup: function() {
       $('.gamecell').attr('chess', 'null');
       for (let gamepiece in main.variables.pieces) {
         $('#' + main.variables.pieces[gamepiece].position).html(main.variables.pieces[gamepiece].img);
         $('#' + main.variables.pieces[gamepiece].position).attr('chess', gamepiece);
       }
+    },
+
+    testMove: function(pieceName, toId) {
+      const pieceToMove = main.variables.pieces[pieceName];
+      const fromId = pieceToMove.position;
+      const targetPieceName = $('#' + toId).attr('chess');
+      const targetPiece = (targetPieceName !== 'null') ? main.variables.pieces[targetPieceName] : null;
+
+      // Store original states
+      const originalPosition = pieceToMove.position;
+      const wasTargetCaptured = targetPiece ? targetPiece.captured : null;
+
+      // Perform the virtual move
+      pieceToMove.position = toId;
+      if (targetPiece) {
+        targetPiece.captured = true;
+      }
+      // Update DOM attributes for the check
+      $('#' + fromId).attr('chess', 'null');
+      $('#' + toId).attr('chess', pieceName);
+
+      // Return a function to undo the virtual move
+      return function undo() {
+        pieceToMove.position = originalPosition;
+        if (targetPiece) {
+          targetPiece.captured = wasTargetCaptured;
+        }
+        $('#' + fromId).attr('chess', pieceName);
+        $('#' + toId).attr('chess', targetPieceName);
+      };
     },
 
     moveoptions: function(selectedpiece) {
@@ -261,6 +350,7 @@ let main = {
       }
 
       switch (main.variables.pieces[selectedpiece].type) {
+
         case 'w_king':
 
           if ($('#6_1').attr('chess') == 'null' && $('#7_1').attr('chess') == 'null' && main.variables.pieces['w_king'].moved == false && main.variables.pieces['w_rook2'].moved == false) {
@@ -463,6 +553,21 @@ let main = {
 
       }
     },
+    
+    filterIllegalMoves: function(pieceName, options) {
+      const playerColor = pieceName.slice(0, 1);
+      const opponentColor = playerColor === 'w' ? 'b' : 'w';
+
+      return options.filter(move => {
+        const undo = main.methods.testMove(pieceName, move);
+        const kingPosition = main.methods.findKing(playerColor);
+        const isKingInCheck = main.methods.isSquareAttacked(kingPosition, opponentColor);
+        
+        undo(); // Revert the virtual move
+
+        return !isKingInCheck;
+      });
+    },
 
     options: function(startpoint, coordinates, piecetype) { // first check if any of the possible coordinates is out of bounds;
         
@@ -475,6 +580,9 @@ let main = {
           return val;
         }
       });
+
+      // Before checking piece-specific rules, let's get the piece name
+      const pieceName = $('#' + startpoint).attr('chess');
 
       switch (piecetype) {
 
@@ -554,7 +662,9 @@ let main = {
           break;
       }      
 
-      return coordinates;
+      // Filter out moves that would leave the king in check
+      const legalMoves = main.methods.filterIllegalMoves(pieceName, coordinates);
+      return legalMoves;
     },
 
     w_options: function (position,coordinates) {
@@ -622,6 +732,19 @@ let main = {
       
     },
 
+    updateLastMoveHighlight: function(fromId, toId) {
+      // Remove previous highlight
+      if (main.variables.lastMove.from) {
+        $('#' + main.variables.lastMove.from).removeClass('last-move-from');
+        $('#' + main.variables.lastMove.to).removeClass('last-move-to');
+      }
+      // Add new highlight
+      $('#' + fromId).addClass('last-move-from');
+      $('#' + toId).addClass('last-move-to');
+      // Store new last move
+      main.variables.lastMove = { from: fromId, to: toId };
+    },
+
     capture: function (target) {
       let selectedpiece = {
         name: $('#' + main.variables.selectedpiece).attr('chess'),
@@ -629,6 +752,8 @@ let main = {
       };
 
       
+        // Highlight the move
+        main.methods.updateLastMoveHighlight(selectedpiece.id, target.id);
         //new cell
         $('#' + target.id).html(main.variables.pieces[selectedpiece.name].img);
         $('#' + target.id).attr('chess',selectedpiece.name);
@@ -640,6 +765,14 @@ let main = {
         main.variables.pieces[selectedpiece.name].moved = true;
         // captured piece
         main.variables.pieces[target.name].captured = true;
+
+        // Add captured piece to the display
+        const capturedPiece = main.variables.pieces[target.name];
+        if (capturedPiece.type.startsWith('w_')) {
+          $('#captured-by-black').append(`<span>${capturedPiece.img}</span>`);
+        } else {
+          $('#captured-by-white').append(`<span>${capturedPiece.img}</span>`);
+        }
         /*
         // toggle highlighted coordinates
         main.methods.togglehighlight(main.variables.highlighted);
@@ -653,6 +786,9 @@ let main = {
     move: function (target) {
 
       let selectedpiece = $('#' + main.variables.selectedpiece).attr('chess');
+
+      // Highlight the move
+      main.methods.updateLastMoveHighlight(main.variables.selectedpiece, target.id);
 
       // new cell
       $('#' + target.id).html(main.variables.pieces[selectedpiece].img);
@@ -670,6 +806,198 @@ let main = {
       // set the selected piece to '' again
       main.variables.selectedpiece = '';
       */
+    },
+
+    promptPromotion: function(pawnName, positionId) {
+      const color = pawnName.slice(0, 1);
+      const promotionPieces = {
+        w: { queen: '&#9813;', rook: '&#9814;', bishop: '&#9815;', knight: '&#9816;' },
+        b: { queen: '&#9819;', rook: '&#9820;', bishop: '&#9821;', knight: '&#9822;' }
+      };
+
+      const $promotionButtons = $('#promotion-buttons');
+      $promotionButtons.empty();
+
+      for (const pieceType in promotionPieces[color]) {
+        const pieceImg = promotionPieces[color][pieceType];
+        $promotionButtons.append(`<button data-type="${color}_${pieceType}">${pieceImg}</button>`);
+      }
+
+      $('#promotion-choice').css('display', 'flex');
+
+      $('#promotion-buttons button').off('click').on('click', function() {
+        const newType = $(this).data('type');
+        const newImg = $(this).html();
+
+        // Update the piece object
+        main.variables.pieces[pawnName].type = newType;
+        main.variables.pieces[pawnName].img = newImg;
+
+        // Update the board
+        $('#' + positionId).html(newImg);
+
+        // Hide the modal
+        $('#promotion-choice').hide();
+
+        // Now end the turn
+        main.methods.endturn();
+      });
+    },
+
+    isPawnPromotion: function(pieceName, targetPosition) {
+      const piece = main.variables.pieces[pieceName];
+      const rank = parseInt(targetPosition.split('_')[1]);
+      return (piece.type.includes('pawn') && ((piece.type.startsWith('w_') && rank === 8) || (piece.type.startsWith('b_') && rank === 1)));
+    },
+
+    getPieceAt: function(positionId) {
+      const pieceName = $('#' + positionId).attr('chess');
+      if (pieceName && pieceName !== 'null') {
+        return main.variables.pieces[pieceName];
+      }
+      return null;
+    },
+
+    findKing: function(color) {
+      const kingName = color + '_king';
+      return main.variables.pieces[kingName].position;
+    },
+
+    updateCheckStatus: function() {
+      const opponentColor = main.variables.turn; // The player whose turn it is now
+      const kingColor = opponentColor === 'w' ? 'b' : 'w';
+      const kingPosition = main.methods.findKing(kingColor);
+
+      // Clear previous check highlight
+      if (main.variables.inCheck) {
+        const oldKingPos = main.methods.findKing(main.variables.inCheck);
+        $('#' + oldKingPos).removeClass('in-check');
+        main.variables.inCheck = '';
+      }
+
+      if (main.methods.isSquareAttacked(kingPosition, opponentColor)) {
+        main.variables.inCheck = kingColor;
+        $('#' + kingPosition).addClass('in-check');
+        
+        // Check for Checkmate
+        if (main.methods.checkForMate(kingColor)) {
+          main.variables.gameOver = true;
+          const winner = opponentColor === 'w' ? 'White' : 'Black';
+          $('#game-over-message').text(`Checkmate! ${winner} wins!`);
+          $('#game-over-modal').css('display', 'flex');
+        } else {
+          console.log(kingColor.toUpperCase() + " is in check!");
+        }
+      } else {
+        // Not in check, so check for STALEMATE
+        // Note: kingColor here is the player whose turn it is about to be.
+        if (main.methods.checkForMate(kingColor)) {
+          main.variables.gameOver = true;
+          $('#game-over-message').text(`Stalemate! It's a draw!`);
+          $('#game-over-modal').css('display', 'flex');
+        }
+      }
+    },
+
+    checkForMate: function(kingColor) {
+      // Check if the player (kingColor) has any legal moves.
+      for (const pieceName in main.variables.pieces) {
+        if (pieceName.startsWith(kingColor) && !main.variables.pieces[pieceName].captured) {
+          // We need to generate the options without highlighting them on the board.
+          // A bit of a hack: temporarily disable togglehighlight
+          const originalToggleHighlight = main.methods.togglehighlight;
+          main.methods.togglehighlight = () => {}; // Do nothing
+          main.methods.moveoptions(pieceName);
+          main.methods.togglehighlight = originalToggleHighlight; // Restore it
+
+          if (main.variables.highlighted.length > 0) {
+            main.variables.highlighted = []; // Clean up
+            return false; // Found a legal move, so it's not checkmate.
+          }
+        }
+      }
+      return true; // No legal moves found for any piece. It's checkmate.
+    },
+
+    isSquareAttacked: function(positionId, attackingColor) {
+      // This is a complex function that checks if any piece of attackingColor can attack positionId
+      // It needs to generate all possible moves for the attacking side and see if positionId is among them.
+
+      for (const pieceName in main.variables.pieces) {
+        const piece = main.variables.pieces[pieceName];
+        if (piece.captured || !pieceName.startsWith(attackingColor)) {
+          continue;
+        }
+
+        const fromPos = piece.position.split('_').map(Number);
+        const toPos = positionId.split('_').map(Number);
+        const dx = toPos[0] - fromPos[0];
+        const dy = toPos[1] - fromPos[1];
+
+        switch (piece.type.split('_')[1]) {
+          case 'pawn':
+            if (attackingColor === 'w') {
+              if (dy === 1 && Math.abs(dx) === 1) return true;
+            } else { // black pawn
+              if (dy === -1 && Math.abs(dx) === 1) return true;
+            }
+            break;
+          case 'knight':
+            if ((Math.abs(dx) === 1 && Math.abs(dy) === 2) || (Math.abs(dx) === 2 && Math.abs(dy) === 1)) {
+              return true;
+            }
+            break;
+          case 'king':
+            if (Math.abs(dx) <= 1 && Math.abs(dy) <= 1) {
+              return true;
+            }
+            break;
+          case 'bishop':
+          case 'queen': // Queen includes bishop moves
+            if (Math.abs(dx) === Math.abs(dy)) {
+              // Check for obstructions
+              let pathIsClear = true;
+              let stepX = Math.sign(dx);
+              let stepY = Math.sign(dy);
+              for (let i = 1; i < Math.abs(dx); i++) {
+                let intermediatePos = `${fromPos[0] + i * stepX}_${fromPos[1] + i * stepY}`;
+                if (main.methods.getPieceAt(intermediatePos)) {
+                  pathIsClear = false;
+                  break;
+                }
+              }
+              if (pathIsClear) return true;
+            }
+            if (piece.type.split('_')[1] !== 'queen') break; // fallthrough for queen
+          case 'rook': // Queen includes rook moves
+            if (dx === 0 || dy === 0) {
+              // Check for obstructions
+              let pathIsClear = true;
+              if (dx === 0) { // Vertical
+                let stepY = Math.sign(dy);
+                for (let i = 1; i < Math.abs(dy); i++) {
+                  let intermediatePos = `${fromPos[0]}_${fromPos[1] + i * stepY}`;
+                  if (main.methods.getPieceAt(intermediatePos)) {
+                    pathIsClear = false;
+                    break;
+                  }
+                }
+              } else { // Horizontal
+                let stepX = Math.sign(dx);
+                for (let i = 1; i < Math.abs(dx); i++) {
+                  let intermediatePos = `${fromPos[0] + i * stepX}_${fromPos[1]}`;
+                  if (main.methods.getPieceAt(intermediatePos)) {
+                    pathIsClear = false;
+                    break;
+                  }
+                }
+              }
+              if (pathIsClear) return true;
+            }
+            break;
+        }
+      }
+      return false;
     },
 
     endturn: function(){
@@ -708,6 +1036,8 @@ let main = {
 
       }
 
+      main.methods.updateCheckStatus();
+
     },
 
     togglehighlight: function(options) {
@@ -720,9 +1050,18 @@ let main = {
 };
 
 $(document).ready(function() {
+  // Store a deep copy of the initial state for resetting
+  main.initialState = JSON.parse(JSON.stringify(main.variables));
+
+  main.methods.drawboard();
   main.methods.gamesetup();
 
   $('.gamecell').click(function(e) {
+
+    if (main.variables.gameOver) return; // Don't allow moves if game is over
+
+    // New Game button handler
+    $('#new-game-btn').click(main.methods.resetGame);
 
     var selectedpiece = {
       name: '',
@@ -747,7 +1086,7 @@ $(document).ready(function() {
       main.methods.moveoptions($(this).attr('chess'));
 
     } else if (main.variables.selectedpiece !='' && target.name == 'null') { // move selected piece piece
-
+      if (main.variables.highlighted.indexOf(target.id) === -1) return; // Not a legal move
       if (selectedpiece.name == 'w_king' || selectedpiece.name == 'b_king'){
         
         let t0 = (selectedpiece.name = 'w_king');
@@ -807,7 +1146,11 @@ $(document).ready(function() {
           
         } else { // move selectedpiece
           main.methods.move(target);
-          main.methods.endturn();
+          if (main.methods.isPawnPromotion(selectedpiece.name, target.id)) {
+            main.methods.promptPromotion(selectedpiece.name, target.id);
+          } else {
+            main.methods.endturn();
+          }
         }
   
       } else { // else if selecedpiece.name is not white/black king than move
@@ -815,6 +1158,11 @@ $(document).ready(function() {
         main.methods.move(target);
         main.methods.endturn();
 
+        if (main.methods.isPawnPromotion(selectedpiece.name, target.id)) {
+          main.methods.promptPromotion(selectedpiece.name, target.id);
+        } else {
+          main.methods.endturn();
+        }
       }
         
     } else if (main.variables.selectedpiece !='' && target.name != 'null' && target.id != selectedpiece.id && selectedpiece.name.slice(0,1) != target.name.slice(0,1)){ // capture a piece
@@ -823,7 +1171,11 @@ $(document).ready(function() {
         
         // capture
         main.methods.capture(target)
-        main.methods.endturn();
+        if (main.methods.isPawnPromotion(selectedpiece.name, target.id)) {
+          main.methods.promptPromotion(selectedpiece.name, target.id);
+        } else {
+          main.methods.endturn();
+        }
         
       }
 

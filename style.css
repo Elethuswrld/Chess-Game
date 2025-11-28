@@ -29,6 +29,17 @@ div * {
   transition: .85s linear;
 }
 
+#new-game-btn {
+  display: block;
+  margin: 10px auto;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  border: 1px solid #333;
+  background-color: #f0f0f0;
+}
+
 .turnhighlight {
   background: #5cb85c !important;
   color: #fff;
@@ -84,6 +95,18 @@ div * {
 .green {
   /*background: green !important;*/
   background: rgb(65, 161, 73) !important;
+}
+
+.last-move-from {
+  background-color: rgba(204, 219, 83, 0.7) !important; /* A yellowish color */
+}
+
+.last-move-to {
+  background-color: rgba(172, 199, 66, 0.8) !important; /* A slightly darker yellowish-green */
+}
+
+.in-check {
+  background-color: rgba(255, 0, 0, 0.5) !important; /* A light red color */
 }
 
 .neonblue_txt {
