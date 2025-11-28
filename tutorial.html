@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Play - JS Chess</title>
+    <link rel="stylesheet" href="./style.css">
+    <style>
+        .tutorial-container {
+            width: 80%;
+            max-width: 900px;
+            margin: 30px auto;
+            font-family: sans-serif;
+        }
+        .piece-tutorial {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .piece-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        .piece-char {
+            font-size: 50px;
+            line-height: 1;
+        }
+        .piece-header h3 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+          <a href="index.html">JavaScript Chess</a>
+        </div>
+        <div class="nav-links">
+          <a href="tutorial.html">Tutorial</a>
+          <a href="dashboard.html">Dashboard</a>
+          <a href="login.html">Login</a>
+          <a href="signup.html">Sign Up</a>
+        </div>
+    </nav>
+
+    <div class="tutorial-container">
+        <h1>How to Play Chess</h1>
+
+        <div class="piece-tutorial">
+            <div class="piece-header">
+                <span class="piece-char">&#9817;</span>
+                <h3>The Pawn</h3>
+            </div>
+            <p>The pawn is the most numerous but weakest piece. It can only move forward. On its first move, it can advance one or two squares. Afterward, it can only move one square at a time. Pawns capture diagonally, one square forward.</p>
+        </div>
+
+        <div class="piece-tutorial">
+            <div class="piece-header">
+                <span class="piece-char">&#9814;</span>
+                <h3>The Rook</h3>
+            </div>
+            <p>The rook moves any number of squares horizontally or vertically. It is a powerful piece, especially when working with other rooks.</p>
+        </div>
+
+        <div class="piece-tutorial">
+            <div class="piece-header">
+                <span class="piece-char">&#9816;</span>
+                <h3>The Knight</h3>
+            </div>
+            <p>The knight moves in an "L" shape: two squares in one direction (horizontally or vertically) and then one square at a 90-degree angle. The knight is the only piece that can jump over other pieces.</p>
+        </div>
+
+        <div class="piece-tutorial">
+            <div class="piece-header">
+                <span class="piece-char">&#9815;</span>
+                <h3>The Bishop</h3>
+            </div>
+            <p>The bishop moves any number of squares diagonally. Each player starts with two bishops, one on a light square and one on a dark square. They can never leave the color of their starting square.</p>
+        </div>
+
+        <div class="piece-tutorial">
+            <div class="piece-header">
+                <span class="piece-char">&#9813;</span>
+                <h3>The Queen</h3>
+            </div>
+            <p>The queen is the most powerful piece. She can move any number of squares horizontally, vertically, or diagonally, combining the powers of the rook and bishop.</p>
+        </div>
+
+        <div class="piece-tutorial">
+            <div class="piece-header">
+                <span class="piece-char">&#9812;</span>
+                <h3>The King</h3>
+            </div>
+            <p>The king is the most important piece, but also one of the weakest. It can move one square in any direction (horizontally, vertically, or diagonally). The goal of the game is to checkmate the opponent's king!</p>
+        </div>
+    </div>
+</body>
+</html>
+```
+
+### 2. Add a Link to the Tutorial in Your Navbar
+
+Now, let's add a "Tutorial" link to the navigation bar on all your existing pages so users can easily find it.
+
+#### `c:\Users\Elethu\Documents\Chess Game\index.html`
+```diff
+--- a/c:/Users/Elethu/Documents/Chess Game/index.html
++++ b/c:/Users/Elethu/Documents/Chess Game/index.html
+@@ -38,6 +38,7 @@
+     <a href="index.html">JavaScript Chess</a>
+   </div>
+   <div class="nav-links">
++    <a href="tutorial.html">Tutorial</a>
+     <a href="dashboard.html">Dashboard</a>
+     <a href="login.html">Login</a>
+     <a href="signup.html">Sign Up</a>
+
+```
+
+#### `c:\Users\Elethu\Documents\Chess Game\login.html`
+```diff
+--- a/c:/Users/Elethu/Documents/Chess Game/login.html
++++ b/c:/Users/Elethu/Documents/Chess Game/login.html
+@@ -19,6 +19,7 @@
+           <a href="index.html">JavaScript Chess</a>
+         </div>
+         <div class="nav-links">
++          <a href="tutorial.html">Tutorial</a>
+           <a href="dashboard.html">Dashboard</a>
+           <a href="login.html">Login</a>
+           <a href="signup.html">Sign Up</a>
+
+```
+
+#### `c:\Users\Elethu\Documents\Chess Game\signup.html`
+```diff
+--- a/c:/Users/Elethu/Documents/Chess Game/signup.html
++++ b/c:/Users/Elethu/Documents/Chess Game/signup.html
+@@ -19,6 +19,7 @@
+           <a href="index.html">JavaScript Chess</a>
+         </div>
+         <div class="nav-links">
++          <a href="tutorial.html">Tutorial</a>
+           <a href="dashboard.html">Dashboard</a>
+           <a href="login.html">Login</a>
+           <a href="signup.html">Sign Up</a>
+
+```
+
+#### `c:\Users\Elethu\Documents\Chess Game\dashboard.html`
+```diff
+--- a/c:/Users/Elethu/Documents/Chess Game/dashboard.html
++++ b/c:/Users/Elethu/Documents/Chess Game/dashboard.html
+@@ -19,6 +19,7 @@
+           <a href="index.html">JavaScript Chess</a>
+         </div>
+         <div class="nav-links">
++          <a href="tutorial.html">Tutorial</a>
+           <a href="dashboard.html">Dashboard</a>
+           <a href="login.html">Login</a>
+           <a href="signup.html">Sign Up</a>
+
+```
+
+### Summary of Changes
+
+1.  **New `tutorial.html` file:** This page provides a clean, easy-to-read guide on how each piece moves, complete with their icons.
+2.  **Updated Navbars:** All pages now link to the new tutorial, making your application feel more connected and complete.
+
+You now have a fully functional tutorial page that will be a great resource for anyone learning to play your game!
+
+<!--
+[PROMPT_SUGGESTION]How could I add small diagrams to the tutorial page to visually show how pieces move?[/PROMPT_SUGGESTION]
+[PROMPT_SUGGESTION]Explain more about how a Node.js backend would work for this project.[/PROMPT_SUGGESTION]
+-->

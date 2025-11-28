@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - JS Chess</title>
+    <link rel="stylesheet" href="./style.css">
+    <style>
+        .dashboard-content { width: 600px; margin: 50px auto; padding: 20px; }
+        .stats { display: flex; justify-content: space-around; font-size: 1.5rem; margin: 20px 0; }
+        .stats div { text-align: center; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+          <a href="index.html">JavaScript Chess</a>
+        </div>
+        <div class="nav-links">
+          <a href="dashboard.html">Dashboard</a>
+          <a href="login.html">Login</a>
+          <a href="signup.html">Sign Up</a>
+        </div>
+    </nav>
+
+    <div class="dashboard-content">
+        <h2>Welcome, <span id="username-display">[Username]</span>!</h2>
+        <div class="stats">
+            <div>Wins<br><span id="wins-count">0</span></div>
+            <div>Losses<br><span id="losses-count">0</span></div>
+            <div>Draws<br><span id="draws-count">0</span></div>
+        </div>
+        <!-- In the future, a list of active games or a scoreboard could go here -->
+    </div>
+</body>
+</html>
